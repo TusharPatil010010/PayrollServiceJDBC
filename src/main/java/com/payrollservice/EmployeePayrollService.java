@@ -107,9 +107,8 @@ public class EmployeePayrollService {
 		return employeeList.get(0).equals(getEmployee(name));
 	}
 
-	public int getEmployeeForDateRange(LocalDate start, LocalDate end) throws DatabaseException {
-		int result = employeePayrollDB.getEmployeeForDateRange(start, end);
-		return result;
+	public List<Employee> getEmployeeForDateRange(LocalDate start, LocalDate end) throws DatabaseException {
+		return employeePayrollDB.getEmployeeForDateRange(start, end);
 	}
 
 	public Map<String, Double> getSalaryAverageByGender() throws DatabaseException {

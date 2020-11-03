@@ -74,9 +74,9 @@ public class EmployeePayrollServiceTest {
 			throws DatabaseException, SQLException {
 		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
 		List<Employee> employeePayrollData = employeePayrollService.readEmployeePayrollDBData(IOService.DB_IO);
-		int result = employeePayrollService.getEmployeeForDateRange(LocalDate.of(2019, 01, 01),
+		List<Employee> resultList = employeePayrollService.getEmployeeForDateRange(LocalDate.of(2019, 01, 01),
 				LocalDate.of(2020, 01, 01));
-		assertEquals(3, result);
+		assertEquals(3, resultList.size());
 	}
 
 	/**

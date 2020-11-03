@@ -65,17 +65,7 @@ public class PayrollServiceJDBC {
 
 	public List<Employee> readData() throws SQLException, DatabaseException {
 		String sql = "Select * from payroll_service; ";
-		List<Employee> employeeData = new ArrayList<>();
-		try (Connection connection = this.getConnection();) {
-			Statement statement = connection.createStatement();
-			ResultSet resultSet = statement.executeQuery(sql);
-			employeeData = this.getEmployeePayrollData(resultSet);
-		} catch (SQLException exception) {
-			System.out.println(exception);
-		} catch (Exception exception) {
-			throw new DatabaseException("Unable to execute query");
-		}
-		return employeeData;
+		return this.getEmployeePayrollDataUsingDB(sql);
 	}
 
 	private int updateEmployeeUsingStatement(String name, double salary) throws DatabaseException {
@@ -162,18 +152,22 @@ public class PayrollServiceJDBC {
 	 * @return
 	 * @throws DatabaseException
 	 */
-	public int getEmployeeForDateRange(LocalDate start, LocalDate end) throws DatabaseException {
+	public List<Employee> getEmployeeForDateRange(LocalDate start, LocalDate end) throws DatabaseException {
 		String sql = String.format("Select * from employee_payroll_service where start between '%s' and '%s' ;",
 				Date.valueOf(start), Date.valueOf(end));
+		return this.getEmployeePayrollDataUsingDB(sql);
+	}
+
+	private List<Employee> getEmployeePayrollDataUsingDB(String sql) throws DatabaseException {
 		List<Employee> employeeData = new ArrayList<>();
 		try (Connection connection = this.getConnection();) {
 			Statement statement = connection.createStatement();
 			ResultSet resultSet = statement.executeQuery(sql);
 			employeeData = this.getEmployeePayrollData(resultSet);
-		} catch (Exception exception) {
-			throw new DatabaseException("Unable to execute query");
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		return employeeData.size();
+		return employeeData;
 	}
 
 	/**
