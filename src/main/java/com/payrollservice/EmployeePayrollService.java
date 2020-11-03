@@ -11,7 +11,7 @@ public class EmployeePayrollService {
 		CONSOLE_IO, FILE_IO, DB_IO, REST_IO
 	};
 
-	private List<Employee> employeeList;
+	private List<Employee> employeeList = new ArrayList<>();
 	private PayrollServiceJDBC employeePayrollDB;
 
 	public EmployeePayrollService(List<Employee> list) {
@@ -129,6 +129,10 @@ public class EmployeePayrollService {
 
 	public Map<String, Double> getCountByGender() throws DatabaseException {
 		return employeePayrollDB.getEmployeesByFunction("COUNT");
+	}
+	
+	public void addEmployeeToPayroll(String name, String gender, double salary, LocalDate start) throws SQLException, DatabaseException {
+		this.employeeList.add(employeePayrollDB.addEmployeeToPayroll(name, gender, salary, start));
 	}
 
 }

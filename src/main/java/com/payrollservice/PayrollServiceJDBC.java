@@ -194,4 +194,45 @@ public class PayrollServiceJDBC {
 		}
 		return aggregateFunctionMap;
 	}
+
+	/**
+	 * UC7 add employee to system
+	 * 
+	 * @param name
+	 * @param gender
+	 * @param salary
+	 * @param start
+	 * @return
+	 * @throws DatabaseException
+	 */
+	public Employee addEmployeeToPayroll(String name, String gender, double salary, LocalDate start)
+			throws DatabaseException {
+		int employeeId = -1;
+		Connection connection = null;
+		Employee employee = null;
+		try {
+			connection = this.getConnection();
+			connection.setAutoCommit(false);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		try (Statement statement = connection.createStatement()) {
+			String sql = String.format("INSERT INTO employee_payroll_service (name, gender, salary, start) "
+					+ "VALUES ('%s','%s','%s','%s')", name, gender, salary, Date.valueOf(start));
+			int rowAffected = statement.executeUpdate(sql, statement.RETURN_GENERATED_KEYS);
+			if (rowAffected == 1) {
+				ResultSet resultSet = statement.getGeneratedKeys();
+				if (resultSet.next())
+					employeeId = resultSet.getInt(1);
+			}
+		} catch (SQLException e) {
+			try {
+				connection.rollback();
+			} catch (SQLException exception) {
+				exception.printStackTrace();
+			}
+			throw new DatabaseException("Unable to add new employee");
+		}
+		return employee;
+	}
 }

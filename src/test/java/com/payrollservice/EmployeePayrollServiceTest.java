@@ -135,4 +135,19 @@ public class EmployeePayrollServiceTest {
 		assertEquals(true, genderComputedMap.get("F") == 1);
 
 	}
+
+	/**
+	 * UC7
+	 * 
+	 * @throws SQLException
+	 * @throws DatabaseException
+	 */
+	@Test
+	public void givenNewEmployee_WhenAdded_ShouldSyncWithDB() throws SQLException, DatabaseException {
+		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
+		employeePayrollService.readEmployeePayrollData(IOService.DB_IO);
+		employeePayrollService.addEmployeeToPayroll("Mark", "M", 5000000.0, LocalDate.now());
+		boolean result = employeePayrollService.checkEmployeeDataSync("Mark");
+		assertEquals(true, result);
+	}
 }
