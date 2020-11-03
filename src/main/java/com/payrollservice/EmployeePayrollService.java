@@ -76,10 +76,31 @@ public class EmployeePayrollService {
 		return entries;
 	}
 
-	public List<Employee> readEmployeePayrollDBData(IOService ioService) throws SQLException {
+	public List<Employee> readEmployeePayrollDBData(IOService ioService) throws DatabaseException {
 		if (ioService.equals(IOService.DB_IO)) {
 			this.employeeList = new PayrollFileServiceIO().readData();
 		}
 		return this.employeeList;
 	}
+
+	public void updateEmployeeSalary(String name, double salary) throws DatabaseException {
+		int result = new PayrollServiceJDBC().updateEmployeeData(name, salary);
+		if (result == 0)
+			return;
+		Employee employee = this.getEmployee(name);
+		if (employee != null)
+			employee.salary = salary;
+	}
+
+	private Employee getEmployee(String name) {
+		Employee employee = this.employeeList.stream().filter(employeeData -> employeeData.name.equals(name))
+				.findFirst().orElse(null);
+		return employee;
+	}
+
+	public boolean checkEmployeeDataSync(String name) throws SQLException, DatabaseException {
+		List<Employee> employeeList = new PayrollServiceJDBC().getEmployeeData(name);
+		return employeeList.get(0).equals(getEmployee(name));
+	}
+
 }
