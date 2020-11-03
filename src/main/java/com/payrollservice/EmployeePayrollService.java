@@ -106,10 +106,30 @@ public class EmployeePayrollService {
 		List<Employee> employeeList = employeePayrollDB.getEmployeePayrollData(name);
 		return employeeList.get(0).equals(getEmployee(name));
 	}
-	
+
 	public int getEmployeeForDateRange(LocalDate start, LocalDate end) throws DatabaseException {
-		int result  = employeePayrollDB.getEmployeeForDateRange(start,end);
+		int result = employeePayrollDB.getEmployeeForDateRange(start, end);
 		return result;
+	}
+
+	public Map<String, Double> getSalaryAverageByGender() throws DatabaseException {
+		return employeePayrollDB.getEmployeesByFunction("AVG");
+	}
+
+	public Map<String, Double> getSalarySumByGender() throws DatabaseException {
+		return employeePayrollDB.getEmployeesByFunction("SUM");
+	}
+
+	public Map<String, Double> getMinSalaryByGender() throws DatabaseException {
+		return employeePayrollDB.getEmployeesByFunction("MIN");
+	}
+
+	public Map<String, Double> getMaxSalaryByGender() throws DatabaseException {
+		return employeePayrollDB.getEmployeesByFunction("MAX");
+	}
+
+	public Map<String, Double> getCountByGender() throws DatabaseException {
+		return employeePayrollDB.getEmployeesByFunction("COUNT");
 	}
 
 }

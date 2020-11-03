@@ -5,6 +5,7 @@ import java.time.LocalDate;
 public class Employee {
 	public String name;
 	public int id;
+	public String gender;
 	public double salary;
 	private LocalDate start;
 
@@ -18,6 +19,11 @@ public class Employee {
 	public Employee(int id, String name, double salary, LocalDate start) {
 		this(id, name, salary);
 		this.start = start;
+	}
+
+	public Employee(int id, String name, double salary, LocalDate start, String gender) {
+		this(id, name, salary, start);
+		this.gender = gender;
 	}
 
 	public boolean equals(Object obj) {

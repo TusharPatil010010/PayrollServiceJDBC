@@ -11,7 +11,9 @@ import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class PayrollServiceJDBC {
@@ -172,5 +174,30 @@ public class PayrollServiceJDBC {
 			throw new DatabaseException("Unable to execute query");
 		}
 		return employeeData.size();
+	}
+
+	/**
+	 * UC6 returns the aggregate value by given function
+	 * 
+	 * @param function
+	 * @return
+	 * @throws DatabaseException
+	 */
+	public Map<String, Double> getEmployeesByFunction(String function) throws DatabaseException {
+		Map<String, Double> aggregateFunctionMap = new HashMap<>();
+		String sql = String.format("Select gender, %s(salary) from employee_payroll_service group by gender ; ",
+				function);
+		try (Connection connection = this.getConnection()) {
+			Statement statement = (Statement) connection.createStatement();
+			ResultSet resultSet = statement.executeQuery(sql);
+			while (resultSet.next()) {
+				String gender = resultSet.getString(1);
+				Double salary = resultSet.getDouble(2);
+				aggregateFunctionMap.put(gender, salary);
+			}
+		} catch (SQLException exception) {
+			throw new DatabaseException("Unable to execute " + function);
+		}
+		return aggregateFunctionMap;
 	}
 }
