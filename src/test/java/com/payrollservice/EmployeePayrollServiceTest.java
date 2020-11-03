@@ -137,7 +137,7 @@ public class EmployeePayrollServiceTest {
 	}
 
 	/**
-	 * UC7
+	 * UC7 and UC8
 	 * 
 	 * @throws SQLException
 	 * @throws DatabaseException

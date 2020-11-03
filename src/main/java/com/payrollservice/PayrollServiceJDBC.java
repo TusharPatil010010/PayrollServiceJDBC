@@ -196,7 +196,7 @@ public class PayrollServiceJDBC {
 	}
 
 	/**
-	 * UC7 add employee to system
+	 * UC7 add employee to system UC8 add payroll data
 	 * 
 	 * @param name
 	 * @param gender
@@ -204,9 +204,10 @@ public class PayrollServiceJDBC {
 	 * @param start
 	 * @return
 	 * @throws DatabaseException
+	 * @throws SQLException
 	 */
 	public Employee addEmployeeToPayroll(String name, String gender, double salary, LocalDate start)
-			throws DatabaseException {
+			throws DatabaseException, SQLException {
 		int employeeId = -1;
 		Connection connection = null;
 		Employee employee = null;
@@ -232,6 +233,36 @@ public class PayrollServiceJDBC {
 				exception.printStackTrace();
 			}
 			throw new DatabaseException("Unable to add new employee");
+		}
+		try (Statement statement = connection.createStatement()) {
+			double deductions = salary * 0.2;
+			double taxable_pay = salary - deductions;
+			double tax = taxable_pay * 0.1;
+			double netPay = salary - tax;
+			String sql = String.format(
+					"INSERT INTO payroll_details (employee_id, basic_pay, deductions, taxable_pay, tax, net_pay) "
+							+ "VALUES ('%s','%s','%s','%s','%s','%s')",
+					employeeId, salary, deductions, taxable_pay, tax, netPay);
+			int rowAffected = statement.executeUpdate(sql);
+			if (rowAffected == 1) {
+				employee = new Employee(employeeId, name, salary, start, gender);
+			}
+		} catch (SQLException e) {
+			try {
+				connection.rollback();
+			} catch (SQLException exception) {
+				exception.printStackTrace();
+			}
+			throw new DatabaseException("Unable to add payroll details of  employee");
+		}
+		try {
+			connection.commit();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			if (connection != null) {
+				connection.close();
+			}
 		}
 		return employee;
 	}
