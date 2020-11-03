@@ -1,6 +1,7 @@
 package com.payrollservice;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -92,10 +93,25 @@ public class PayrollServiceJDBC {
 		return readData().stream().filter(employee -> employee.name.equals(name)).collect(Collectors.toList());
 	}
 
+	/**
+	 * updates the second parameter
+	 * 
+	 * @param name
+	 * @param salary
+	 * @return
+	 * @throws DatabaseException
+	 */
 	public int updateEmployeeData(String name, double salary) throws DatabaseException {
 		return this.updateEmployeeUsingStatement(name, salary);
 	}
 
+	/**
+	 * Retrieve data according to name
+	 * 
+	 * @param name
+	 * @return
+	 * @throws DatabaseException
+	 */
 	public List<Employee> getEmployeePayrollData(String name) throws DatabaseException {
 		List<Employee> employeePayrollList = null;
 		if (this.employeeStatement == null)
@@ -134,5 +150,27 @@ public class PayrollServiceJDBC {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * UC5 Retrieve employee from given date range
+	 * 
+	 * @param start
+	 * @param end
+	 * @return
+	 * @throws DatabaseException
+	 */
+	public int getEmployeeForDateRange(LocalDate start, LocalDate end) throws DatabaseException {
+		String sql = String.format("Select * from employee_payroll_service where start between '%s' and '%s' ;",
+				Date.valueOf(start), Date.valueOf(end));
+		List<Employee> employeeData = new ArrayList<>();
+		try (Connection connection = this.getConnection();) {
+			Statement statement = connection.createStatement();
+			ResultSet resultSet = statement.executeQuery(sql);
+			employeeData = this.getEmployeePayrollData(resultSet);
+		} catch (Exception exception) {
+			throw new DatabaseException("Unable to execute query");
+		}
+		return employeeData.size();
 	}
 }

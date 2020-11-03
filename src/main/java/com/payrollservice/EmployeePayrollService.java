@@ -1,6 +1,7 @@
 package com.payrollservice;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.*;
 
 public class EmployeePayrollService {
@@ -104,6 +105,11 @@ public class EmployeePayrollService {
 	public boolean checkEmployeeDataSync(String name) throws DatabaseException {
 		List<Employee> employeeList = employeePayrollDB.getEmployeePayrollData(name);
 		return employeeList.get(0).equals(getEmployee(name));
+	}
+	
+	public int getEmployeeForDateRange(LocalDate start, LocalDate end) throws DatabaseException {
+		int result  = employeePayrollDB.getEmployeeForDateRange(start,end);
+		return result;
 	}
 
 }
