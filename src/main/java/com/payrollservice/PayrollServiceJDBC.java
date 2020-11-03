@@ -3,6 +3,7 @@ package com.payrollservice;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -14,7 +15,17 @@ import java.util.stream.Collectors;
 
 public class PayrollServiceJDBC {
 
+	private PreparedStatement employeeStatement;
+	private static PayrollServiceJDBC employeePayrollDB;
+
 	public PayrollServiceJDBC() {
+	}
+
+	public static PayrollServiceJDBC getInstance() {
+		if (employeePayrollDB == null) {
+			employeePayrollDB = new PayrollServiceJDBC();
+		}
+		return employeePayrollDB;
 	}
 
 	private Connection getConnection() throws DatabaseException {
@@ -55,13 +66,7 @@ public class PayrollServiceJDBC {
 		try (Connection connection = this.getConnection();) {
 			Statement statement = connection.createStatement();
 			ResultSet resultSet = statement.executeQuery(sql);
-			while (resultSet.next()) {
-				int id = resultSet.getInt("id");
-				String name = resultSet.getString("name");
-				double salary = resultSet.getDouble("salary");
-				LocalDate start = resultSet.getDate("start").toLocalDate();
-				employeeData.add(new Employee(id, name, salary, start));
-			}
+			employeeData = this.getEmployeePayrollData(resultSet);
 		} catch (SQLException exception) {
 			System.out.println(exception);
 		} catch (Exception exception) {
@@ -91,4 +96,43 @@ public class PayrollServiceJDBC {
 		return this.updateEmployeeUsingStatement(name, salary);
 	}
 
+	public List<Employee> getEmployeePayrollData(String name) throws DatabaseException {
+		List<Employee> employeePayrollList = null;
+		if (this.employeeStatement == null)
+			this.preparedStatementForEmployeeData();
+		try {
+			employeeStatement.setString(1, name);
+			ResultSet resultSet = employeeStatement.executeQuery();
+			employeePayrollList = this.getEmployeePayrollData(resultSet);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return employeePayrollList;
+	}
+
+	private List<Employee> getEmployeePayrollData(ResultSet resultSet) {
+		List<Employee> employeePayrollList = new ArrayList<>();
+		try {
+			while (resultSet.next()) {
+				int id = resultSet.getInt("id");
+				String name = resultSet.getString("name");
+				double salary = resultSet.getDouble("salary");
+				LocalDate start = resultSet.getDate("start").toLocalDate();
+				employeePayrollList.add(new Employee(id, name, salary, start));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return employeePayrollList;
+	}
+
+	private void preparedStatementForEmployeeData() throws DatabaseException {
+		try {
+			Connection connection = this.getConnection();
+			String sql = "SELECT * FROM employee_payroll_service WHERE name = ?";
+			employeeStatement = connection.prepareStatement(sql);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 }
