@@ -140,7 +140,11 @@ public class EmployeePayrollService {
 	public List<Employee> deleteEmployee(String name) throws DatabaseException, SQLException {
 		employeePayrollDB.deleteEmployee(name);
 		return readEmployeePayrollDBData(IOService.DB_IO);
-
 	}
 
+	public List<Employee> removeEmployeeFromPayroll(int id) throws DatabaseException {
+		List<Employee> activeList = null;
+		activeList = employeePayrollDB.removeEmployeeFromCompany(id);
+		return activeList;
+	}
 }

@@ -9,6 +9,7 @@ public class Employee {
 	public double salary;
 	private LocalDate start;
 	public String department;
+	public boolean is_active = true;
 
 	public Employee(int id, String name, double salary) {
 		this.name = name;

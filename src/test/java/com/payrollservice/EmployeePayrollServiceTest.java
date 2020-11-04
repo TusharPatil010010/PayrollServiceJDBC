@@ -146,13 +146,14 @@ public class EmployeePayrollServiceTest {
 	public void givenNewEmployee_WhenAdded_ShouldSyncWithDB() throws SQLException, DatabaseException {
 		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
 		employeePayrollService.readEmployeePayrollData(IOService.DB_IO);
-		employeePayrollService.addEmployeeToPayroll("Mark", "M", 5000000.0, LocalDate.now());
+		employeePayrollService.addEmployeeToPayrollAndDepartment("Mark", "M", 5000000.0, LocalDate.now(), "Marketing");
 		boolean result = employeePayrollService.checkEmployeeDataSync("Mark");
 		assertEquals(true, result);
 	}
 
 	/**
-	 * UC9: Inserting data according to new database structure
+	 * UC9: Inserting data according to new database structure Usecase11: UC11:
+	 * Refactored for the single transaction
 	 * 
 	 * @throws SQLException
 	 * @throws DatabaseException
@@ -161,8 +162,20 @@ public class EmployeePayrollServiceTest {
 	public void givenNewEmployee_WhenAddedToPayroll_ShouldBeAddedToDepartment() throws SQLException, DatabaseException {
 		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
 		employeePayrollService.readEmployeePayrollData(IOService.DB_IO);
-		employeePayrollService.addEmployeeToDepartment("Mark", "M", 5000000.0, LocalDate.now(), "Sales");
+		employeePayrollService.addEmployeeToPayrollAndDepartment("Mark", "M", 5000000.0, LocalDate.now(), "Sales");
 		boolean result = employeePayrollService.checkEmployeeDataSync("Mark");
 		assertEquals(true, result);
+	}
+
+	/**
+	 * UC12: Remove employee from payroll
+	 * 
+	 * @throws DatabaseException
+	 */
+	@Test
+	void givenEmployeeId_WhenRemoved_shouldReturnNumberOfActiveEmployees() throws DatabaseException {
+		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
+		List<Employee> onlyActiveList = employeePayrollService.removeEmployeeFromPayroll(3);
+		assertEquals(3, onlyActiveList.size());
 	}
 }
