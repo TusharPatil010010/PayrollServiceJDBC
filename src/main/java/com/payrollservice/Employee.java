@@ -8,9 +8,9 @@ public class Employee {
 	public String gender;
 	public double salary;
 	private LocalDate start;
+	public String department;
 
 	public Employee(int id, String name, double salary) {
-		super();
 		this.name = name;
 		this.id = id;
 		this.salary = salary;
@@ -24,6 +24,11 @@ public class Employee {
 	public Employee(int id, String name, double salary, LocalDate start, String gender) {
 		this(id, name, salary, start);
 		this.gender = gender;
+	}
+
+	public Employee(int id, String name, double salary, String gender, LocalDate start, String department) {
+		this(id, name, salary, start, gender);
+		this.department = department;
 	}
 
 	public boolean equals(Object obj) {

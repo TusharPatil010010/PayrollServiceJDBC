@@ -150,4 +150,19 @@ public class EmployeePayrollServiceTest {
 		boolean result = employeePayrollService.checkEmployeeDataSync("Mark");
 		assertEquals(true, result);
 	}
+
+	/**
+	 * UC9: Inserting data according to new database structure
+	 * 
+	 * @throws SQLException
+	 * @throws DatabaseException
+	 */
+	@Test
+	public void givenNewEmployee_WhenAddedToPayroll_ShouldBeAddedToDepartment() throws SQLException, DatabaseException {
+		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
+		employeePayrollService.readEmployeePayrollData(IOService.DB_IO);
+		employeePayrollService.addEmployeeToDepartment("James", "M", 5000000.0, LocalDate.now(), "Sales");
+		boolean result = employeePayrollService.checkEmployeeDataSync("James");
+		assertEquals(true, result);
+	}
 }

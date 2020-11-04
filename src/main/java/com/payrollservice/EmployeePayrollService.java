@@ -130,9 +130,21 @@ public class EmployeePayrollService {
 	public Map<String, Double> getCountByGender() throws DatabaseException {
 		return employeePayrollDB.getEmployeesByFunction("COUNT");
 	}
-	
-	public void addEmployeeToPayroll(String name, String gender, double salary, LocalDate start) throws SQLException, DatabaseException {
+
+	public void addEmployeeToPayroll(String name, String gender, double salary, LocalDate start)
+			throws SQLException, DatabaseException {
 		this.employeeList.add(employeePayrollDB.addEmployeeToPayroll(name, gender, salary, start));
+	}
+
+	public List<Employee> deleteEmployee(String name) throws DatabaseException, SQLException {
+		employeePayrollDB.deleteEmployee(name);
+		return readEmployeePayrollDBData(IOService.DB_IO);
+
+	}
+
+	public void addEmployeeToDepartment(String name, String gender, double salary, LocalDate start, String department)
+			throws SQLException, DatabaseException {
+		this.employeeList.add(employeePayrollDB.addEmployeeToDepartment(name, gender, salary, start, department));
 	}
 
 }
