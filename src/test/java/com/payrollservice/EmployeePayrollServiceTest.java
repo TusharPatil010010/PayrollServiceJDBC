@@ -161,8 +161,8 @@ public class EmployeePayrollServiceTest {
 	public void givenNewEmployee_WhenAddedToPayroll_ShouldBeAddedToDepartment() throws SQLException, DatabaseException {
 		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
 		employeePayrollService.readEmployeePayrollData(IOService.DB_IO);
-		employeePayrollService.addEmployeeToDepartment("James", "M", 5000000.0, LocalDate.now(), "Sales");
-		boolean result = employeePayrollService.checkEmployeeDataSync("James");
+		employeePayrollService.addEmployeeToDepartment("Mark", "M", 5000000.0, LocalDate.now(), "Sales");
+		boolean result = employeePayrollService.checkEmployeeDataSync("Mark");
 		assertEquals(true, result);
 	}
 }

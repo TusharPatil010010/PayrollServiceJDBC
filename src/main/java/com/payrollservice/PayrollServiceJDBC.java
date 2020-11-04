@@ -63,9 +63,17 @@ public class PayrollServiceJDBC {
 		}
 	}
 
-	public List<Employee> readData() throws SQLException, DatabaseException {
-		String sql = "Select * from payroll_service; ";
-		return this.getEmployeePayrollDataUsingDB(sql);
+	/**
+	 * UC2, UC10: Reading data from the employee_payroll_service
+	 * 
+	 * @return
+	 * @throws SQLException
+	 * @throws DatabaseException
+	 */
+	public List<Employee> readData() throws DatabaseException {
+		String sql = "Select id,name,gender,salary,start,department.department_name from employee_payroll_service "
+				+ "inner join department on employee_payroll_service.id = department.employee_id; ";
+		return this.getEmployeePayrollAndDeparmentData(sql);
 	}
 
 	private int updateEmployeeUsingStatement(String name, double salary) throws DatabaseException {
@@ -145,17 +153,46 @@ public class PayrollServiceJDBC {
 	}
 
 	/**
-	 * UC5 Retrieve employee from given date range
+	 * UC5, UC10: Implementing query to find employees joined between the particular
+	 * dates
 	 * 
 	 * @param start
 	 * @param end
 	 * @return
 	 * @throws DatabaseException
 	 */
-	public List<Employee> getEmployeeForDateRange(LocalDate start, LocalDate end) throws DatabaseException {
-		String sql = String.format("Select * from employee_payroll_service where start between '%s' and '%s' ;",
-				Date.valueOf(start), Date.valueOf(end));
-		return this.getEmployeePayrollDataUsingDB(sql);
+	public List<Employee> getEmployeeForDateRange(LocalDate startDate, LocalDate end) throws DatabaseException {
+		String sql = String.format(
+				"Select id,name,gender,salary,start,department.department_name from employee_payroll_service "
+						+ "inner join department on employee_payroll_service.id = department.employee_id where start between '%s' and '%s' ;",
+				Date.valueOf(startDate), Date.valueOf(end));
+		return this.getEmployeePayrollAndDeparmentData(sql);
+	}
+
+	/**
+	 * UC10: to work according to new table structure
+	 * 
+	 * @param sql
+	 * @return
+	 * @throws DatabaseException
+	 */
+	private List<Employee> getEmployeePayrollAndDeparmentData(String sql) throws DatabaseException {
+		List<Employee> employeePayrollList = new ArrayList<>();
+		try (Connection connection = this.getConnection()) {
+			Statement statement = connection.createStatement();
+			ResultSet resultSet = statement.executeQuery(sql);
+			while (resultSet.next()) {
+				int id = resultSet.getInt("id");
+				String name = resultSet.getString("name");
+				double salary = resultSet.getDouble("salary");
+				LocalDate start = resultSet.getDate("start").toLocalDate();
+				String department = resultSet.getString("department_name");
+				employeePayrollList.add(new Employee(id, name, salary, start, department));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return employeePayrollList;
 	}
 
 	private List<Employee> getEmployeePayrollDataUsingDB(String sql) throws DatabaseException {
@@ -171,7 +208,7 @@ public class PayrollServiceJDBC {
 	}
 
 	/**
-	 * UC6 returns the aggregate value by given function
+	 * UC6: performing Aggregate functions query on the employee table
 	 * 
 	 * @param function
 	 * @return
@@ -196,18 +233,19 @@ public class PayrollServiceJDBC {
 	}
 
 	/**
-	 * UC7 add employee to system UC8 add payroll data
+	 * UC7: Inserting new employee into the table using JDBC transaction UC8:
+	 * Inserting employee data in employee as well as payroll table
 	 * 
 	 * @param name
 	 * @param gender
 	 * @param salary
 	 * @param start
 	 * @return
-	 * @throws DatabaseException
 	 * @throws SQLException
+	 * @throws DatabaseException
 	 */
 	public Employee addEmployeeToPayroll(String name, String gender, double salary, LocalDate start)
-			throws DatabaseException, SQLException {
+			throws DatabaseException {
 		int employeeId = -1;
 		Connection connection = null;
 		Employee employee = null;
@@ -261,7 +299,11 @@ public class PayrollServiceJDBC {
 			e.printStackTrace();
 		} finally {
 			if (connection != null) {
-				connection.close();
+				try {
+					connection.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 		return employee;
@@ -285,7 +327,7 @@ public class PayrollServiceJDBC {
 	}
 
 	/**
-	 * Usecase9: Adding the employee to the given department
+	 * UC9: Adding the employee to the given department
 	 * 
 	 * @param name
 	 * @param gender
@@ -294,10 +336,9 @@ public class PayrollServiceJDBC {
 	 * @param department
 	 * @return
 	 * @throws DatabaseException
-	 * @throws SQLException
 	 */
 	public Employee addEmployeeToDepartment(String name, String gender, double salary, LocalDate start,
-			String department) throws DatabaseException, SQLException {
+			String department) throws DatabaseException {
 		Employee employee = addEmployeeToPayroll(name, gender, salary, start);
 		String sql = String.format(
 				"INSERT INTO department (employee_id,department_id, department_name) " + "VALUES ('%s','%s','%s')",
