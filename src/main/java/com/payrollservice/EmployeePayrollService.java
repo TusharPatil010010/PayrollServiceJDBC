@@ -131,20 +131,16 @@ public class EmployeePayrollService {
 		return employeePayrollDB.getEmployeesByFunction("COUNT");
 	}
 
-	public void addEmployeeToPayroll(String name, String gender, double salary, LocalDate start)
-			throws SQLException, DatabaseException {
-		this.employeeList.add(employeePayrollDB.addEmployeeToPayroll(name, gender, salary, start));
+	public void addEmployeeToPayrollAndDepartment(String name, String gender, double salary, LocalDate start,
+			String department) throws SQLException, DatabaseException {
+		this.employeeList
+				.add(employeePayrollDB.addEmployeeToPayrollAndDepartment(name, gender, salary, start, department));
 	}
 
 	public List<Employee> deleteEmployee(String name) throws DatabaseException, SQLException {
 		employeePayrollDB.deleteEmployee(name);
 		return readEmployeePayrollDBData(IOService.DB_IO);
 
-	}
-
-	public void addEmployeeToDepartment(String name, String gender, double salary, LocalDate start, String department)
-			throws SQLException, DatabaseException {
-		this.employeeList.add(employeePayrollDB.addEmployeeToDepartment(name, gender, salary, start, department));
 	}
 
 }
