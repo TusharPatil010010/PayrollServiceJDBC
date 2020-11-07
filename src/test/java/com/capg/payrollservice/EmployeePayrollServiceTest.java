@@ -146,6 +146,7 @@ public class EmployeePayrollServiceTest {
 		Instant threadEnd = Instant.now();
 		System.out.println("Duration with Thread: " + Duration.between(threadStart, threadEnd));
 		long result = employeePayrollService.countEntries(IOService.DB_IO);
-		assertEquals(13, result);
+		System.out.println(result);
+		assertEquals(19, result);
 	}
 }
