@@ -39,7 +39,7 @@ public class EmployeePayrollDB {
 		connectionCounter++;
 		String jdbcURL = "jdbc:mysql://localhost:3306/employee_payroll_service?useSSL=false";
 		String userName = "root";
-		String password = "Jan1998ad";
+		String password = "open";
 		Connection connection = null;
 
 		try {

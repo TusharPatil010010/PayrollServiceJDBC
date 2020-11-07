@@ -182,4 +182,47 @@ public class EmployeePayrollServiceTest {
 		request.body(empJson);
 		return request.post("/employees");
 	}
+
+	@Test
+	public void givenNewEmployee_WhenAdded_ShouldMatchResponseAndCount() {
+		Employee[] arrayOfEmp = getEmployeeList();
+		EmployeePayrollService eService = new EmployeePayrollService(Arrays.asList(arrayOfEmp));
+		Employee employee = null;
+		employee = new Employee(0, "Mark Zuckerberg", 3000000.0, LocalDate.now(), "M");
+		Response response = addEmployeeToJsonServer(employee);
+		int statusCode = response.getStatusCode();
+		assertEquals(201, statusCode);
+		employee = new Gson().fromJson(response.asString(), Employee.class);
+		eService.addEmployeeToPayroll(employee);
+		long count = eService.countEntries(IOService.REST_IO);
+		assertEquals(3, count);
+	}
+
+	@Test
+	public void givenListOfNewEmployee_WhenAdded_ShouldMatchResponseAndCount() {
+		Employee[] arrayOfEmp = getEmployeeList();
+		EmployeePayrollService eService = new EmployeePayrollService(Arrays.asList(arrayOfEmp));
+		Employee[] arrayOfEmployee = { new Employee(0, "Dhoni", 6000000.0, LocalDate.now(), "M"),
+				new Employee(0, "Sachin", 7000000.0, LocalDate.now(), "M"),
+				new Employee(0, "Kohli", 5000000.0, LocalDate.now(), "M") };
+		List<Employee> employeeList = Arrays.asList(arrayOfEmployee);
+		employeeList.forEach(employee -> {
+			Runnable task = () -> {
+				Response response = addEmployeeToJsonServer(employee);
+				int statusCode = response.getStatusCode();
+				assertEquals(201, statusCode);
+				Employee newEmployee = new Gson().fromJson(response.asString(), Employee.class);
+				eService.addEmployeeToPayroll(newEmployee);
+			};
+			Thread thread = new Thread(task, employee.name);
+			thread.start();
+			try {
+				thread.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		});
+		long count = eService.countEntries(IOService.REST_IO);
+		assertEquals(8, count);
+	}
 }

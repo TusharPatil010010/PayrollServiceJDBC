@@ -59,6 +59,42 @@
         "day": 5
       },
       "is_active": true
+   },
+    {
+      "name": "Dhoni",
+      "id": 9,
+      "salary": 6000000,
+      "gender": "M",
+      "start": {
+        "year": 2020,
+        "month": 11,
+        "day": 6
+      },
+      "is_active": true
+    },
+    {
+      "name": "Sachin",
+      "id": 10,
+      "salary": 7000000,
+      "gender": "M",
+      "start": {
+        "year": 2020,
+        "month": 11,
+        "day": 6
+      },
+      "is_active": true
+    },
+    {
+      "name": "Kohli",
+      "id": 11,
+      "salary": 5000000,
+      "gender": "M",
+      "start": {
+        "year": 2020,
+        "month": 11,
+        "day": 6
+      },
+      "is_active": true
     }
   ]
 } 

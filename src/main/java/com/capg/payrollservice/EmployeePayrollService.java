@@ -271,11 +271,4 @@ public class EmployeePayrollService {
 	public void addEmployeeToPayroll(Employee employee) {
 		employeeList.add(employee);
 	}
-
-	public void deleteEmployee(String name, IOService ioService) {
-		if (ioService.equals(IOService.REST_IO)) {
-			Employee employee = this.getEmployee(name);
-			employeeList.remove(employee);
-		}
-	}
 }
