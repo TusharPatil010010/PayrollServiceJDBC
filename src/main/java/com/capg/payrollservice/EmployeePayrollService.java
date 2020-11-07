@@ -114,10 +114,20 @@ public class EmployeePayrollService {
 		return employeeList.get(0).equals(getEmployee(name));
 	}
 
+	/**
+	 * Usecase5: to retrieve employees in the particular dates
+	 * 
+	 * @throws DatabaseException
+	 */
 	public List<Employee> getEmployeeForDateRange(LocalDate start, LocalDate end) throws DatabaseException {
 		return employeePayrollDB.getEmployeeForDateRange(start, end);
 	}
 
+	/**
+	 * Usecase6: to perform aggregate functions on the employee table
+	 * 
+	 * @throws DatabaseException
+	 */
 	public Map<String, Double> getSalaryAverageByGender() throws DatabaseException {
 		return employeePayrollDB.getEmployeesByFunction("AVG");
 	}
@@ -138,12 +148,25 @@ public class EmployeePayrollService {
 		return employeePayrollDB.getEmployeesByFunction("COUNT");
 	}
 
+	/**
+	 * Usecase7: To insert new Employee to the table Usecase9: Inserting data
+	 * according to new database structure Usecase11: Refactored for the single
+	 * transaction
+	 * 
+	 * @throws SQLException
+	 * @throws DatabaseException
+	 */
 	public void addEmployeeToPayrollAndDepartment(String name, String gender, double salary, LocalDate start,
 			List<String> department) throws SQLException, DatabaseException {
 		this.employeeList
 				.add(employeePayrollDB.addEmployeeToPayrollAndDepartment(name, gender, salary, start, department));
 	}
 
+	/**
+	 * Usecase8: performing the cascading delete operation on database
+	 * 
+	 * @throws DatabaseException
+	 */
 	public List<Employee> deleteEmployee(String name) throws DatabaseException {
 		employeePayrollDB.deleteEmployee(name);
 		return readEmployeePayrollDBData(IOService.DB_IO);

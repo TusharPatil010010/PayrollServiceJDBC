@@ -225,4 +225,19 @@ public class EmployeePayrollServiceTest {
 		long count = eService.countEntries(IOService.REST_IO);
 		assertEquals(8, count);
 	}
+
+	@Test
+	public void givenNewSalaryForEmployee_WhenUpdated_ShouldMatchOutput() throws DatabaseException, SQLException {
+		Employee[] arrayOfEmp = getEmployeeList();
+		EmployeePayrollService eService = new EmployeePayrollService(Arrays.asList(arrayOfEmp));
+		eService.updatePayrollDB("Mukesh Ambani", 8000000.0, IOService.REST_IO);
+		Employee employee = eService.getEmployee("Mukesh Ambani");
+		String empJson = new Gson().toJson(employee);
+		RequestSpecification request = RestAssured.given();
+		request.header("Content-Type", "application/json");
+		request.body(empJson);
+		Response response = request.put("/employees/" + employee.id);
+		int statusCode = response.getStatusCode();
+		assertEquals(200, statusCode);
+	}
 }
