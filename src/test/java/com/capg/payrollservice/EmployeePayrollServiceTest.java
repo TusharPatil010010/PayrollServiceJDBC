@@ -21,17 +21,6 @@ public class EmployeePayrollServiceTest {
 	}
 
 	@Test
-	public void givenNewSalaryForEmployee_WhenUpdated_ShouldBeInSync() throws DatabaseException, SQLException {
-		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
-		@SuppressWarnings("unused")
-		List<Employee> employeePayrollData = employeePayrollService.readEmployeePayrollDBData(IOService.DB_IO);
-		employeePayrollService.updateEmployeeSalary("Deepika", 5000000);
-		employeePayrollService.readEmployeePayrollDBData(EmployeePayrollService.IOService.DB_IO);
-		boolean result = employeePayrollService.checkEmployeeDataSync("Deepika");
-		assertEquals(true, result);
-	}
-
-	@Test
 	public void givenEmployeePayrollInDB_WhenRetrievedForDateRange_ShouldMatchEmployeeCount() throws DatabaseException {
 		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
 		@SuppressWarnings("unused")
@@ -97,9 +86,9 @@ public class EmployeePayrollServiceTest {
 	public void givenNewEmployee_WhenAdded_ShouldSyncWithDB() throws SQLException, DatabaseException {
 		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
 		employeePayrollService.readEmployeePayrollDBData(IOService.DB_IO);
-		employeePayrollService.addEmployeeToPayrollAndDepartment("James", "M", 5000000.0, LocalDate.now(),
+		employeePayrollService.addEmployeeToPayrollAndDepartment("Tom", "M", 5000000.0, LocalDate.now(),
 				Arrays.asList("Marketing"));
-		boolean result = employeePayrollService.checkEmployeeDataSync("James");
+		boolean result = employeePayrollService.checkEmployeeDataSync("Tom");
 		assertEquals(true, result);
 	}
 
@@ -148,5 +137,20 @@ public class EmployeePayrollServiceTest {
 		long result = employeePayrollService.countEntries(IOService.DB_IO);
 		System.out.println(result);
 		assertEquals(19, result);
+	}
+
+	@Test
+	public void geiven2Employees_WhenUpdatedSalary_ShouldSyncWithDB() throws DatabaseException {
+		Map<String, Double> salaryMap = new HashMap<>();
+		salaryMap.put("Zeff Bezos", 700000.0);
+		salaryMap.put("Mukesh Ambani", 800000.0);
+		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
+		employeePayrollService.readEmployeePayrollDBData(IOService.DB_IO);
+		Instant start = Instant.now();
+		employeePayrollService.updatePayroll(salaryMap);
+		Instant end = Instant.now();
+		System.out.println("Duration with Thread: " + Duration.between(start, end));
+		boolean result = employeePayrollService.checkEmployeeListSync(Arrays.asList("Bill Gates,Mukesh"));
+		assertEquals(true, result);
 	}
 }
