@@ -47,6 +47,11 @@ public class EmployeePayrollService {
 		eService.readEmployeePayrollData(IOService.FILE_IO);
 	}
 
+	/**
+	 * Writes data to IO files
+	 * 
+	 * @param ioService
+	 */
 	public void writeData(IOService ioService) {
 		if (ioService.equals(IOService.CONSOLE_IO))
 			System.out.println("Writting data of employee to console: " + employeeList);
@@ -55,6 +60,11 @@ public class EmployeePayrollService {
 		}
 	}
 
+	/**
+	 * Reads data from IO files
+	 * 
+	 * @param ioService
+	 */
 	public void readEmployeePayrollData(IOService ioService) {
 		List<Employee> list = new ArrayList<>();
 		if (ioService.equals(IOService.CONSOLE_IO)) {
@@ -72,12 +82,23 @@ public class EmployeePayrollService {
 		}
 	}
 
+	/**
+	 * prints data to console
+	 * 
+	 * @param ioService
+	 */
 	public void printData(IOService ioService) {
 		if (ioService.equals(IOService.FILE_IO)) {
 			new EmployeeFileService().printData();
 		}
 	}
 
+	/**
+	 * Counts the entries from the given file
+	 * 
+	 * @param ioService
+	 * @return
+	 */
 	public long countEntries(IOService ioService) {
 		long entries = 0;
 		if (ioService.equals(IOService.FILE_IO)) {
@@ -89,7 +110,7 @@ public class EmployeePayrollService {
 	}
 
 	/**
-	 * Usecase2: Reading data from database table
+	 * UC2: Reading data from database table
 	 * 
 	 * @param ioService
 	 * @return
@@ -109,13 +130,20 @@ public class EmployeePayrollService {
 		return employee;
 	}
 
+	/**
+	 * Checks the sync after the updation
+	 * 
+	 * @param name
+	 * @return
+	 * @throws DatabaseException
+	 */
 	public boolean checkEmployeeDataSync(String name) throws DatabaseException {
 		List<Employee> employeeList = employeePayrollDB.getEmployeePayrollData(name);
 		return employeeList.get(0).equals(getEmployee(name));
 	}
 
 	/**
-	 * Usecase5: to retrieve employees in the particular dates
+	 * UC5: to retrieve employees in the particular dates
 	 * 
 	 * @throws DatabaseException
 	 */
@@ -124,7 +152,7 @@ public class EmployeePayrollService {
 	}
 
 	/**
-	 * Usecase6: to perform aggregate functions on the employee table
+	 * UC6: to perform aggregate functions on the employee table
 	 * 
 	 * @throws DatabaseException
 	 */
@@ -149,9 +177,8 @@ public class EmployeePayrollService {
 	}
 
 	/**
-	 * Usecase7: To insert new Employee to the table Usecase9: Inserting data
-	 * according to new database structure Usecase11: Refactored for the single
-	 * transaction
+	 * UC7: To insert new Employee to the table Usecase9: Inserting data according
+	 * to new database structure Usecase11: Refactored for the single transaction
 	 * 
 	 * @throws SQLException
 	 * @throws DatabaseException
@@ -163,7 +190,7 @@ public class EmployeePayrollService {
 	}
 
 	/**
-	 * Usecase8: performing the cascading delete operation on database
+	 * UC8: performing the cascading delete operation on database
 	 * 
 	 * @throws DatabaseException
 	 */
@@ -173,12 +200,24 @@ public class EmployeePayrollService {
 
 	}
 
+	/**
+	 * Removes employee according to id
+	 * 
+	 * @param id
+	 * @return
+	 * @throws DatabaseException
+	 */
 	public List<Employee> removeEmployeeFromPayroll(int id) throws DatabaseException {
 		List<Employee> activeList = null;
 		activeList = employeePayrollDB.removeEmployeeFromCompany(id);
 		return activeList;
 	}
 
+	/**
+	 * Adds employee to the employee list
+	 * 
+	 * @param employeeDataList
+	 */
 	public void addEmployeesToPayroll(List<Employee> employeeDataList) {
 		employeeDataList.forEach(employee -> {
 			System.out.println("Employee Being added: " + employee.name);
@@ -195,8 +234,8 @@ public class EmployeePayrollService {
 	}
 
 	/**
-	 * Usecase14: Adding employees to table using threads in less time Usecase15:
-	 * Thread execution and synchronization
+	 * UC14: Adding employees to table using threads in less time Usecase15: Thread
+	 * execution and synchronization
 	 * 
 	 * @param employeeDataList
 	 */
@@ -228,7 +267,7 @@ public class EmployeePayrollService {
 	}
 
 	/**
-	 * Usecase17 : Updating the salary in table using the multithreading
+	 * UC17 : Updating the salary in table using the multithreading
 	 * 
 	 * @param salaryMap
 	 */
@@ -258,6 +297,15 @@ public class EmployeePayrollService {
 		}
 	}
 
+	/**
+	 * Updates the payroll database
+	 * 
+	 * @param name
+	 * @param salary
+	 * @param ioService
+	 * @throws DatabaseException
+	 * @throws SQLException
+	 */
 	public void updatePayrollDB(String name, Double salary, IOService ioService)
 			throws DatabaseException, SQLException {
 		if (ioService.equals(IOService.DB_IO)) {
@@ -270,6 +318,13 @@ public class EmployeePayrollService {
 			employee.salary = salary;
 	}
 
+	/**
+	 * Checks the sync after updation
+	 * 
+	 * @param nameList
+	 * @return
+	 * @throws DatabaseException
+	 */
 	public boolean checkEmployeeListSync(List<String> nameList) throws DatabaseException {
 		List<Boolean> resultList = new ArrayList<>();
 		nameList.forEach(name -> {
@@ -287,7 +342,7 @@ public class EmployeePayrollService {
 	}
 
 	/**
-	 * REST Json Usecase1: adding the employee to cache
+	 * REST Json UC1: adding the employee to cache
 	 * 
 	 * @param employee
 	 */
@@ -296,7 +351,7 @@ public class EmployeePayrollService {
 	}
 
 	/**
-	 * REST Json Usecase5: deleting employee from the cache as well as json server
+	 * REST Json UC5: deleting employee from the cache as well as JSON Server
 	 * 
 	 * @param name
 	 * @param ioService

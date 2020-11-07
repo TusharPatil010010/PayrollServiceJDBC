@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import com.capg.payrollservice.EmployeePayrollService.IOService;
@@ -16,9 +17,6 @@ import com.google.gson.Gson;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
-
-import org.junit.Before;
-import org.junit.Test;
 
 public class EmployeePayrollServiceTest {
 
