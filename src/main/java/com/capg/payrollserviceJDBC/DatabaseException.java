@@ -1,4 +1,4 @@
-package com.capg.payrollservice;
+package com.capg.payrollserviceJDBC;
 
 @SuppressWarnings("serial")
 public class DatabaseException extends Exception {

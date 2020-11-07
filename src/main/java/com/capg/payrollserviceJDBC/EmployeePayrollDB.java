@@ -1,4 +1,4 @@
-package com.capg.payrollservice;
+package com.capg.payrollserviceJDBC;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -17,18 +17,20 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class PayrollServiceJDBC {
-	private static final Logger LOG = LogManager.getLogger(PayrollServiceJDBC.class);
+import com.capg.payrollservice.Employee;
+
+public class EmployeePayrollDB {
+	private static final Logger LOG = LogManager.getLogger(EmployeePayrollDB.class);
 	private int connectionCounter = 0;
 	private PreparedStatement employeeStatement;
-	private static PayrollServiceJDBC employeePayrollDB;
+	private static EmployeePayrollDB employeePayrollDB;
 
-	private PayrollServiceJDBC() {
+	private EmployeePayrollDB() {
 	}
 
-	public static PayrollServiceJDBC getInstance() {
+	public static EmployeePayrollDB getInstance() {
 		if (employeePayrollDB == null) {
-			employeePayrollDB = new PayrollServiceJDBC();
+			employeePayrollDB = new EmployeePayrollDB();
 		}
 		return employeePayrollDB;
 	}
@@ -55,7 +57,7 @@ public class PayrollServiceJDBC {
 	}
 
 	/**
-	 * UC2,UC10: Reading data from the employee_payroll_service
+	 * Usecase2,Usecase10: Reading data from the employee_payroll_service
 	 * 
 	 * @return
 	 * @throws SQLException
@@ -85,7 +87,7 @@ public class PayrollServiceJDBC {
 	}
 
 	/**
-	 * UC4: Refactored the result set
+	 * Usecase4: Refactored the result set
 	 * 
 	 * @param resultSet
 	 * @return
@@ -107,8 +109,8 @@ public class PayrollServiceJDBC {
 	}
 
 	/**
-	 * UC5, UC10: Implementing query to find employees joined between the particular
-	 * dates
+	 * Usecase5,Usecase10: Implementing query to find employees joined between the
+	 * particular dates
 	 * 
 	 * @param start
 	 * @param end
@@ -124,7 +126,7 @@ public class PayrollServiceJDBC {
 	}
 
 	/**
-	 * UC10: to work according to new table structure
+	 * Usecase10: to work according to new table structure
 	 * 
 	 * @param sql
 	 * @return
@@ -170,7 +172,7 @@ public class PayrollServiceJDBC {
 	}
 
 	/**
-	 * UC6: performing Aggregate functions query on the employee table
+	 * Usecase6: performing Aggregate functions query on the employee table
 	 * 
 	 * @param function
 	 * @return
@@ -195,26 +197,25 @@ public class PayrollServiceJDBC {
 	}
 
 	/**
-	 * UC7: Inserting new employee into the table using JDBC transaction UC8:
-	 * Inserting employee data in employee as well as payroll table UC9: Adding the
-	 * employee to the given department Usecase11: Making all insertion as a single
-	 * transaction
+	 * Usecase7: Inserting new employee into the table using JDBC transaction
+	 * Usecase8: Inserting employee data in employee as well as payroll table
+	 * Usecase9: Adding the employee to the given department Usecase11: Making all
+	 * insertion as a single transaction
 	 */
 	public Employee addEmployeeToPayrollAndDepartment(String name, String gender, double salary, LocalDate start,
 			List<String> department) throws SQLException, DatabaseException {
+		Employee employee = null;
 		int employeeId = -1;
 		Connection connection = null;
-		Employee employee = null;
 		try {
 			connection = this.getConnection();
 			connection.setAutoCommit(false);
-		} catch (SQLException e) {
+		} catch (SQLException | DatabaseException e) {
 			e.printStackTrace();
 		}
 		try (Statement statement = connection.createStatement()) {
 			String sql = String.format("INSERT INTO employee_payroll_service (name, gender, salary, start) "
 					+ "VALUES ('%s','%s','%s','%s')", name, gender, salary, Date.valueOf(start));
-			@SuppressWarnings("static-access")
 			int rowAffected = statement.executeUpdate(sql, statement.RETURN_GENERATED_KEYS);
 			if (rowAffected == 1) {
 				ResultSet resultSet = statement.getGeneratedKeys();
@@ -227,7 +228,6 @@ public class PayrollServiceJDBC {
 			} catch (SQLException exception) {
 				exception.printStackTrace();
 			}
-			throw new DatabaseException("Unable to add new employee");
 		}
 		try (Statement statement = connection.createStatement()) {
 			double deductions = salary * 0.2;
@@ -275,7 +275,7 @@ public class PayrollServiceJDBC {
 	}
 
 	/**
-	 * UC8: Performing the cascading delete on the employee table
+	 * Usecase8: Performing the cascading delete on the employee table
 	 * 
 	 * @param name
 	 * @throws DatabaseException
@@ -292,7 +292,7 @@ public class PayrollServiceJDBC {
 	}
 
 	/**
-	 * UC12: Remove employee from the table
+	 * Usecase12: Remove employee from the table
 	 * 
 	 * @param id
 	 * @return
@@ -308,15 +308,6 @@ public class PayrollServiceJDBC {
 		return listOfEmployees;
 	}
 
-	/**
-	 * Updates salary
-	 * 
-	 * @param name
-	 * @param newSalary
-	 * @return
-	 * @throws DatabaseException
-	 * @throws SQLException
-	 */
 	public int updateEmployeePayrollData(String name, Double newSalary) throws DatabaseException, SQLException {
 		int employeeId = -1;
 		int result = 0;
@@ -331,7 +322,6 @@ public class PayrollServiceJDBC {
 		try (Statement statement = connection.createStatement()) {
 			String sql = String.format("Update employee_payroll_service set salary = %.2f where name = '%s';", salary,
 					name);
-			@SuppressWarnings("static-access")
 			int rowAffected = statement.executeUpdate(sql, statement.RETURN_GENERATED_KEYS);
 			if (rowAffected == 1) {
 				ResultSet resultSet = statement.getGeneratedKeys();

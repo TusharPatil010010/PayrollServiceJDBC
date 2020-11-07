@@ -10,6 +10,15 @@ import java.util.*;
 import org.junit.Test;
 
 import com.capg.payrollservice.EmployeePayrollService.IOService;
+import com.capg.payrollserviceJDBC.DatabaseException;
+
+import com.google.gson.Gson;
+import io.restassured.RestAssured;
+import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
+
+import org.junit.Before;
+import org.junit.Test;
 
 public class EmployeePayrollServiceTest {
 
@@ -23,8 +32,7 @@ public class EmployeePayrollServiceTest {
 	@Test
 	public void givenEmployeePayrollInDB_WhenRetrievedForDateRange_ShouldMatchEmployeeCount() throws DatabaseException {
 		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
-		@SuppressWarnings("unused")
-		List<Employee> employeePayrollData = employeePayrollService.readEmployeePayrollDBData(IOService.DB_IO);
+		employeePayrollService.readEmployeePayrollDBData(IOService.DB_IO);
 		List<Employee> resultList = employeePayrollService.getEmployeeForDateRange(LocalDate.of(2020, 01, 01),
 				LocalDate.of(2021, 01, 01));
 		assertEquals(2, resultList.size());
@@ -86,9 +94,9 @@ public class EmployeePayrollServiceTest {
 	public void givenNewEmployee_WhenAdded_ShouldSyncWithDB() throws SQLException, DatabaseException {
 		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
 		employeePayrollService.readEmployeePayrollDBData(IOService.DB_IO);
-		employeePayrollService.addEmployeeToPayrollAndDepartment("Tom", "M", 5000000.0, LocalDate.now(),
+		employeePayrollService.addEmployeeToPayrollAndDepartment("James", "M", 5000000.0, LocalDate.now(),
 				Arrays.asList("Marketing"));
-		boolean result = employeePayrollService.checkEmployeeDataSync("Tom");
+		boolean result = employeePayrollService.checkEmployeeDataSync("James");
 		assertEquals(true, result);
 	}
 
@@ -121,9 +129,10 @@ public class EmployeePayrollServiceTest {
 	public void geiven6Employees_WhenAddedToDB_ShouldMatchEmployeeEntries() throws DatabaseException {
 		Employee[] arrayOfEmp = { new Employee(0, "Jeff Bezos", 100000.0, "M", LocalDate.now(), Arrays.asList("Sales")),
 				new Employee(0, "Bill Gates", 200000.0, "M", LocalDate.now(), Arrays.asList("Marketing")),
-				new Employee(0, "Mark ", 150000.0, "M", LocalDate.now(), Arrays.asList("Technical")),
+				new Employee(0, "Mark", 150000.0, "M", LocalDate.now(), Arrays.asList("Technical")),
 				new Employee(0, "Sundar", 400000.0, "M", LocalDate.now(), Arrays.asList("Sales,Technical")),
-				new Employee(0, "Mukesh ", 4500000.0, "M", LocalDate.now(), Arrays.asList("Sales")) };
+				new Employee(0, "Mukesh", 4500000.0, "M", LocalDate.now(), Arrays.asList("Sales")),
+				new Employee(0, "Anil", 300000.0, "M", LocalDate.now(), Arrays.asList("Sales")) };
 		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
 		employeePayrollService.readEmployeePayrollDBData(IOService.DB_IO);
 		Instant start = Instant.now();
@@ -135,22 +144,42 @@ public class EmployeePayrollServiceTest {
 		Instant threadEnd = Instant.now();
 		System.out.println("Duration with Thread: " + Duration.between(threadStart, threadEnd));
 		long result = employeePayrollService.countEntries(IOService.DB_IO);
-		System.out.println(result);
-		assertEquals(19, result);
+		assertEquals(13, result);
 	}
 
 	@Test
 	public void geiven2Employees_WhenUpdatedSalary_ShouldSyncWithDB() throws DatabaseException {
 		Map<String, Double> salaryMap = new HashMap<>();
-		salaryMap.put("Zeff Bezos", 700000.0);
-		salaryMap.put("Mukesh Ambani", 800000.0);
+		salaryMap.put("Bill Gates", 700000.0);
+		salaryMap.put("Mukesh", 800000.0);
 		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
 		employeePayrollService.readEmployeePayrollDBData(IOService.DB_IO);
 		Instant start = Instant.now();
-		employeePayrollService.updatePayroll(salaryMap);
+		employeePayrollService.updatePayroll(salaryMap, IOService.DB_IO);
 		Instant end = Instant.now();
 		System.out.println("Duration with Thread: " + Duration.between(start, end));
-		boolean result = employeePayrollService.checkEmployeeListSync(Arrays.asList("Bill Gates,Mukesh"));
+		boolean result = employeePayrollService.checkEmployeeListSync(Arrays.asList("Mukesh"));
 		assertEquals(true, result);
+	}
+
+	@Before
+	public void setup() {
+		RestAssured.baseURI = "http://localhost";
+		RestAssured.port = 3000;
+	}
+
+	private Employee[] getEmployeeList() {
+		Response response = RestAssured.get("/employees");
+		System.out.println("Employee payroll entries in JSONServer:\n" + response.asString());
+		Employee[] arrayOfEmp = new Gson().fromJson(response.asString(), Employee[].class);
+		return arrayOfEmp;
+	}
+
+	private Response addEmployeeToJsonServer(Employee employee) {
+		String empJson = new Gson().toJson(employee);
+		RequestSpecification request = RestAssured.given();
+		request.header("Content-Type", "application/json");
+		request.body(empJson);
+		return request.post("/employees");
 	}
 }

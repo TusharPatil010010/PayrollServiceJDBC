@@ -7,8 +7,11 @@ import java.util.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.capg.payrollserviceJDBC.DatabaseException;
+import com.capg.payrollserviceJDBC.EmployeePayrollDB;
+
 public class EmployeePayrollService {
-	private static final Logger LOG = LogManager.getLogger(PayrollServiceJDBC.class);
+	private static final Logger LOG = LogManager.getLogger(EmployeePayrollDB.class);
 	static Scanner consoleInput = new Scanner(System.in);
 
 	public enum IOService {
@@ -16,15 +19,15 @@ public class EmployeePayrollService {
 	};
 
 	private List<Employee> employeeList = new ArrayList<>();
-	private PayrollServiceJDBC employeePayrollDB;
+	private EmployeePayrollDB employeePayrollDB;
 
 	public EmployeePayrollService(List<Employee> list) {
 		this();
-		this.employeeList = list;
+		this.employeeList = new ArrayList<>(list);
 	}
 
 	public EmployeePayrollService() {
-		employeePayrollDB = PayrollServiceJDBC.getInstance();
+		employeePayrollDB = EmployeePayrollDB.getInstance();
 	}
 
 	public static void main(String[] args) {
@@ -48,7 +51,7 @@ public class EmployeePayrollService {
 		if (ioService.equals(IOService.CONSOLE_IO))
 			System.out.println("Writting data of employee to console: " + employeeList);
 		else if (ioService.equals(IOService.FILE_IO)) {
-			new PayrollFileServiceIO().writeData(employeeList);
+			new EmployeeFileService().writeData(employeeList);
 		}
 	}
 
@@ -64,21 +67,21 @@ public class EmployeePayrollService {
 			double salary = consoleInput.nextDouble();
 			employeeList.add(new Employee(id, name, salary));
 		} else if (ioService.equals(IOService.FILE_IO)) {
-			list = new PayrollFileServiceIO().readData();
+			list = new EmployeeFileService().readData();
 			System.out.println("Writing data from file" + list);
 		}
 	}
 
 	public void printData(IOService ioService) {
 		if (ioService.equals(IOService.FILE_IO)) {
-			new PayrollFileServiceIO().printData();
+			new EmployeeFileService().printData();
 		}
 	}
 
 	public long countEntries(IOService ioService) {
 		long entries = 0;
 		if (ioService.equals(IOService.FILE_IO)) {
-			entries = new PayrollFileServiceIO().countEntries();
+			entries = new EmployeeFileService().countEntries();
 		} else {
 			entries = employeeList.size();
 		}
@@ -86,7 +89,7 @@ public class EmployeePayrollService {
 	}
 
 	/**
-	 * UC2: Reading data from database table
+	 * Usecase2: Reading data from database table
 	 * 
 	 * @param ioService
 	 * @return
@@ -100,7 +103,7 @@ public class EmployeePayrollService {
 		return employeeList;
 	}
 
-	private Employee getEmployee(String name) {
+	public Employee getEmployee(String name) {
 		Employee employee = this.employeeList.stream().filter(employeeData -> employeeData.name.equals(name))
 				.findFirst().orElse(null);
 		return employee;
@@ -169,7 +172,8 @@ public class EmployeePayrollService {
 	}
 
 	/**
-	 * UC14: Adding employees to table using threads in less time
+	 * Usecase14: Adding employees to table using threads in less time Usecase15:
+	 * Thread execution and synchronization
 	 * 
 	 * @param employeeDataList
 	 */
@@ -200,14 +204,19 @@ public class EmployeePayrollService {
 		}
 	}
 
-	public void updatePayroll(Map<String, Double> salaryMap) {
+	/**
+	 * Usecase17 : Updating the salary in table using the multithreading
+	 * 
+	 * @param salaryMap
+	 */
+	public void updatePayroll(Map<String, Double> salaryMap, IOService ioService) {
 		Map<Integer, Boolean> employeeAdditionStatus = new HashMap<Integer, Boolean>();
 		salaryMap.forEach((k, v) -> {
 			Runnable task = () -> {
 				employeeAdditionStatus.put(k.hashCode(), false);
 				LOG.info("Employee Being Added: " + Thread.currentThread().getName());
 				try {
-					this.updatePayrollDB(k, v);
+					this.updatePayrollDB(k, v, ioService);
 				} catch (DatabaseException | SQLException e) {
 					e.printStackTrace();
 				}
@@ -226,18 +235,13 @@ public class EmployeePayrollService {
 		}
 	}
 
-	/**
-	 * Updates salary in database
-	 * 
-	 * @param name
-	 * @param salary
-	 * @throws DatabaseException
-	 * @throws SQLException
-	 */
-	public void updatePayrollDB(String name, Double salary) throws DatabaseException, SQLException {
-		int result = employeePayrollDB.updateEmployeePayrollData(name, salary);
-		if (result == 0)
-			return;
+	public void updatePayrollDB(String name, Double salary, IOService ioService)
+			throws DatabaseException, SQLException {
+		if (ioService.equals(IOService.DB_IO)) {
+			int result = employeePayrollDB.updateEmployeePayrollData(name, salary);
+			if (result == 0)
+				return;
+		}
 		Employee employee = this.getEmployee(name);
 		if (employee != null)
 			employee.salary = salary;
@@ -259,4 +263,19 @@ public class EmployeePayrollService {
 		return true;
 	}
 
+	/**
+	 * Json Usecase1: adding the employee to cache
+	 * 
+	 * @param employee
+	 */
+	public void addEmployeeToPayroll(Employee employee) {
+		employeeList.add(employee);
+	}
+
+	public void deleteEmployee(String name, IOService ioService) {
+		if (ioService.equals(IOService.REST_IO)) {
+			Employee employee = this.getEmployee(name);
+			employeeList.remove(employee);
+		}
+	}
 }
