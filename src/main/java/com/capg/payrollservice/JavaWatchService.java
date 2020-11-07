@@ -1,4 +1,4 @@
-package com.payrollservice;
+package com.capg.payrollservice;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;
@@ -22,7 +22,6 @@ public class JavaWatchService {
 		this.dirWatcher = new HashMap<WatchKey, Path>();
 		this.dir = dir;
 		scanAndRegisterDirectories(dir);
-
 	}
 
 	private void registerDirWatchers(Path dir) throws IOException {
@@ -68,7 +67,6 @@ public class JavaWatchService {
 						if (Files.isDirectory(child))
 							dirWatcher.remove(key);
 					}
-
 				}
 			}
 			boolean valid = key.reset();
@@ -79,5 +77,4 @@ public class JavaWatchService {
 			}
 		}
 	}
-
 }

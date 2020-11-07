@@ -1,8 +1,7 @@
-package com.payrollservice;
+package com.capg.payrollservice;
 
 import java.sql.Connection;
 import java.sql.Date;
-import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,7 +9,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Enumeration;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +20,7 @@ public class PayrollServiceJDBC {
 	private PreparedStatement employeeStatement;
 	private static PayrollServiceJDBC employeePayrollDB;
 
-	public PayrollServiceJDBC() {
+	private PayrollServiceJDBC() {
 	}
 
 	public static PayrollServiceJDBC getInstance() {
@@ -32,39 +31,22 @@ public class PayrollServiceJDBC {
 	}
 
 	private Connection getConnection() throws DatabaseException {
-		String jdbcURL = "jdbc:mysql://localhost:3306/payroll_service?useSSL=false";
+		String jdbcURL = "jdbc:mysql://localhost:3306/employee_payroll_service?useSSL=false";
 		String userName = "root";
 		String password = "open";
 		Connection connection = null;
-		// loading the driver
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
-			System.out.println("Driver Loaded Successfully.");
-		} catch (ClassNotFoundException exception) {
-			throw new IllegalStateException("Cannot find driver in the classpath...", exception);
-		}
-		listDrivers();
-		// creating a connection
-		try {
-			System.out.println("Connecting to database..... " + jdbcURL);
 			connection = DriverManager.getConnection(jdbcURL, userName, password);
-			System.out.println("Connection is successful: " + connection);
-		} catch (Exception exception) {
-			exception.printStackTrace();
+		} catch (Exception e) {
+			throw new DatabaseException("Connection was unsuccessful");
 		}
 		return connection;
-	}
 
-	private static void listDrivers() {
-		Enumeration<Driver> driverList = DriverManager.getDrivers();
-		while (driverList.hasMoreElements()) {
-			Driver driverClass = (Driver) driverList.nextElement();
-			System.out.println("  " + driverClass.getClass().getName());
-		}
 	}
 
 	/**
-	 * UC2, UC10: Reading data from the employee_payroll_service
+	 * UC2,UC10: Reading data from the employee_payroll_service
 	 * 
 	 * @return
 	 * @throws SQLException
@@ -76,6 +58,14 @@ public class PayrollServiceJDBC {
 		return this.getEmployeePayrollAndDeparmentData(sql);
 	}
 
+	/**
+	 * UC3: Function to update salary in the table for a particular person
+	 * 
+	 * @param name
+	 * @param salary
+	 * @return
+	 * @throws DatabaseException
+	 */
 	private int updateEmployeeUsingStatement(String name, double salary) throws DatabaseException {
 		String sql = String.format("Update employee_payroll_service set salary = %.2f where name = '%s';", salary,
 				name);
@@ -89,29 +79,14 @@ public class PayrollServiceJDBC {
 		return result;
 	}
 
-	public List<Employee> getEmployeeData(String name) throws DatabaseException, SQLException {
+	public List<Employee> getEmployeeData(String name) throws DatabaseException {
 		return readData().stream().filter(employee -> employee.name.equals(name)).collect(Collectors.toList());
 	}
 
-	/**
-	 * updates the second parameter
-	 * 
-	 * @param name
-	 * @param salary
-	 * @return
-	 * @throws DatabaseException
-	 */
 	public int updateEmployeeData(String name, double salary) throws DatabaseException {
 		return this.updateEmployeeUsingStatement(name, salary);
 	}
 
-	/**
-	 * Retrieve data according to name
-	 * 
-	 * @param name
-	 * @return
-	 * @throws DatabaseException
-	 */
 	public List<Employee> getEmployeePayrollData(String name) throws DatabaseException {
 		List<Employee> employeePayrollList = null;
 		if (this.employeeStatement == null)
@@ -126,6 +101,12 @@ public class PayrollServiceJDBC {
 		return employeePayrollList;
 	}
 
+	/**
+	 * UC4: Refactored the result set
+	 * 
+	 * @param resultSet
+	 * @return
+	 */
 	private List<Employee> getEmployeePayrollData(ResultSet resultSet) {
 		List<Employee> employeePayrollList = new ArrayList<>();
 		try {
@@ -142,6 +123,11 @@ public class PayrollServiceJDBC {
 		return employeePayrollList;
 	}
 
+	/**
+	 * UC4: Prepared Statement for the payroll database
+	 * 
+	 * @throws DatabaseException
+	 */
 	private void preparedStatementForEmployeeData() throws DatabaseException {
 		try {
 			Connection connection = this.getConnection();
@@ -153,7 +139,7 @@ public class PayrollServiceJDBC {
 	}
 
 	/**
-	 * UC5, UC10: Implementing query to find employees joined between the particular
+	 * UC5,UC10: Implementing query to find employees joined between the particular
 	 * dates
 	 * 
 	 * @param start
@@ -178,23 +164,32 @@ public class PayrollServiceJDBC {
 	 */
 	private List<Employee> getEmployeePayrollAndDeparmentData(String sql) throws DatabaseException {
 		List<Employee> employeePayrollList = new ArrayList<>();
+		Map<Integer, Employee> employeeMap = new HashMap<>();
 		try (Connection connection = this.getConnection()) {
 			Statement statement = connection.createStatement();
 			ResultSet resultSet = statement.executeQuery(sql);
 			while (resultSet.next()) {
 				int id = resultSet.getInt("id");
 				String name = resultSet.getString("name");
+				String gender = resultSet.getString("gender");
 				double salary = resultSet.getDouble("salary");
 				LocalDate start = resultSet.getDate("start").toLocalDate();
 				String department = resultSet.getString("department_name");
-				employeePayrollList.add(new Employee(id, name, salary, start, department));
+				if (employeeMap.containsKey(id)) {
+					employeeMap.get(id).department.add(department);
+				} else {
+					employeeMap.put(id, new Employee(id, name, salary, gender, start, Arrays.asList(department)));
+				}
 			}
+			employeePayrollList = employeeMap.values().stream().collect(Collectors.toList());
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return employeePayrollList;
 	}
 
+	@SuppressWarnings("unused")
 	private List<Employee> getEmployeePayrollDataUsingDB(String sql) throws DatabaseException {
 		List<Employee> employeeData = new ArrayList<>();
 		try (Connection connection = this.getConnection();) {
@@ -233,13 +228,13 @@ public class PayrollServiceJDBC {
 	}
 
 	/**
-	 * UC7: Inserting new employee into the table using JDBC transaction UC8:
-	 * Inserting employee data in employee as well as payroll table UC9: Adding the
-	 * employee to the given department UC11: Making all insertion as a single
-	 * transaction
+	 * UC7: Inserting new employee into the table using JDBC transaction........
+	 * UC8: Inserting employee data in employee as well as payroll table........
+	 * UC9: Adding the employee to the given department Usecase11: Making all
+	 * insertion as a single transaction
 	 */
 	public Employee addEmployeeToPayrollAndDepartment(String name, String gender, double salary, LocalDate start,
-			String department) throws SQLException, DatabaseException {
+			List<String> department) throws SQLException, DatabaseException {
 		int employeeId = -1;
 		Connection connection = null;
 		Employee employee = null;
@@ -252,6 +247,7 @@ public class PayrollServiceJDBC {
 		try (Statement statement = connection.createStatement()) {
 			String sql = String.format("INSERT INTO employee_payroll_service (name, gender, salary, start) "
 					+ "VALUES ('%s','%s','%s','%s')", name, gender, salary, Date.valueOf(start));
+			@SuppressWarnings("static-access")
 			int rowAffected = statement.executeUpdate(sql, statement.RETURN_GENERATED_KEYS);
 			if (rowAffected == 1) {
 				ResultSet resultSet = statement.getGeneratedKeys();
@@ -285,9 +281,8 @@ public class PayrollServiceJDBC {
 			throw new DatabaseException("Unable to add payroll details of  employee");
 		}
 		try (Statement statement = connection.createStatement()) {
-			String sql = String.format(
-					"INSERT INTO department (employee_id,department_id, department_name) " + "VALUES ('%s','%s','%s')",
-					employeeId, 1, department);
+			String sql = String.format("INSERT INTO department (employee_id, department_name) " + "VALUES ('%s','%s')",
+					employeeId, department);
 			int rowAffected = statement.executeUpdate(sql);
 			if (rowAffected == 1) {
 				employee = new Employee(employeeId, name, salary, gender, start, department);

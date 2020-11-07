@@ -1,9 +1,9 @@
-package com.payrollservice;
+package com.capg.payrollservice;
 
 import org.junit.Test;
 
-import com.payrollservice.FileUtils;
-import com.payrollservice.JavaWatchService;
+import com.capg.payrollservice.FileUtils;
+import com.capg.payrollservice.JavaWatchService;
 
 import static org.junit.Assert.assertTrue;
 

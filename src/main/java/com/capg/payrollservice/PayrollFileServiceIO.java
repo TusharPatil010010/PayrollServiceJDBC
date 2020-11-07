@@ -1,4 +1,4 @@
-package com.payrollservice;
+package com.capg.payrollservice;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,8 +7,7 @@ import java.nio.file.Paths;
 import java.util.*;
 
 public class PayrollFileServiceIO {
-
-	public static String PAYROLL_FILE_NAME = "payrollService.txt";
+	public static String PAYROLL_FILE_NAME = "payroll.txt";
 
 	public void writeData(List<Employee> list) {
 		StringBuffer employeeBuffer = new StringBuffer();
@@ -40,7 +39,6 @@ public class PayrollFileServiceIO {
 			e.printStackTrace();
 		}
 		return entries;
-
 	}
 
 	public List<Employee> readData() {
@@ -63,5 +61,4 @@ public class PayrollFileServiceIO {
 		}
 		return list;
 	}
-
 }

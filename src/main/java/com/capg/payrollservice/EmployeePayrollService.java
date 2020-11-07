@@ -1,4 +1,4 @@
-package com.payrollservice;
+package com.capg.payrollservice;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -75,18 +75,34 @@ public class EmployeePayrollService {
 		long entries = 0;
 		if (ioService.equals(IOService.FILE_IO)) {
 			entries = new PayrollFileServiceIO().countEntries();
+		} else {
+			entries = employeeList.size();
 		}
-		System.out.println("No of Entries in File: " + entries);
 		return entries;
 	}
 
-	public List<Employee> readEmployeePayrollDBData(IOService ioService) throws DatabaseException, SQLException {
+	/**
+	 * Usecase2: Reading data from database table
+	 * 
+	 * @param ioService
+	 * @return
+	 * @throws SQLException
+	 * @throws DatabaseException
+	 */
+	public List<Employee> readEmployeePayrollDBData(IOService ioService) throws DatabaseException {
 		if (ioService.equals(IOService.DB_IO)) {
-			this.employeeList = employeePayrollDB.readData();
+			employeeList = employeePayrollDB.readData();
 		}
-		return this.employeeList;
+		return employeeList;
 	}
 
+	/**
+	 * Usecase3: Updating data in the table for "Deepika"
+	 * 
+	 * @param name
+	 * @param salary
+	 * @throws DatabaseException
+	 */
 	public void updateEmployeeSalary(String name, double salary) throws DatabaseException {
 		int result = employeePayrollDB.updateEmployeeData(name, salary);
 		if (result == 0)
@@ -132,19 +148,36 @@ public class EmployeePayrollService {
 	}
 
 	public void addEmployeeToPayrollAndDepartment(String name, String gender, double salary, LocalDate start,
-			String department) throws SQLException, DatabaseException {
+			List<String> department) throws SQLException, DatabaseException {
 		this.employeeList
 				.add(employeePayrollDB.addEmployeeToPayrollAndDepartment(name, gender, salary, start, department));
 	}
 
-	public List<Employee> deleteEmployee(String name) throws DatabaseException, SQLException {
+	public List<Employee> deleteEmployee(String name) throws DatabaseException {
 		employeePayrollDB.deleteEmployee(name);
 		return readEmployeePayrollDBData(IOService.DB_IO);
+
 	}
 
 	public List<Employee> removeEmployeeFromPayroll(int id) throws DatabaseException {
 		List<Employee> activeList = null;
 		activeList = employeePayrollDB.removeEmployeeFromCompany(id);
 		return activeList;
+	}
+
+	public void addEmployeesToPayroll(List<Employee> employeeDataList) {
+		employeeDataList.forEach(employee -> {
+//			System.out.println("Employee Being added: "+employee.name);
+			try {
+				this.addEmployeeToPayrollAndDepartment(employee.name, employee.gender, employee.salary, employee.start,
+						employee.department);
+			} catch (SQLException | DatabaseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+//			System.out.println("Employee added: "+employee.name);
+		});
+//		System.out.println(this.employeeList);
+
 	}
 }
