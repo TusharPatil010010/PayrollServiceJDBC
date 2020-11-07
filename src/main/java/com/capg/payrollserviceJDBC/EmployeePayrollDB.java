@@ -57,7 +57,7 @@ public class EmployeePayrollDB {
 	}
 
 	/**
-	 * Usecase2,Usecase10: Reading data from the employee_payroll_service
+	 * UC2,UC10: Reading data from the employee_payroll_service
 	 * 
 	 * @return
 	 * @throws SQLException
@@ -87,7 +87,7 @@ public class EmployeePayrollDB {
 	}
 
 	/**
-	 * Usecase4: Refactored the result set
+	 * UC4: Refactored the result set
 	 * 
 	 * @param resultSet
 	 * @return
@@ -109,8 +109,8 @@ public class EmployeePayrollDB {
 	}
 
 	/**
-	 * Usecase5,Usecase10: Implementing query to find employees joined between the
-	 * particular dates
+	 * UC5,UC10: Implementing query to find employees joined between the particular
+	 * dates
 	 * 
 	 * @param start
 	 * @param end
@@ -126,7 +126,7 @@ public class EmployeePayrollDB {
 	}
 
 	/**
-	 * Usecase10: to work according to new table structure
+	 * UC10: to work according to new table structure
 	 * 
 	 * @param sql
 	 * @return
@@ -172,7 +172,7 @@ public class EmployeePayrollDB {
 	}
 
 	/**
-	 * Usecase6: performing Aggregate functions query on the employee table
+	 * UC6: performing Aggregate functions query on the employee table
 	 * 
 	 * @param function
 	 * @return
@@ -197,9 +197,9 @@ public class EmployeePayrollDB {
 	}
 
 	/**
-	 * Usecase7: Inserting new employee into the table using JDBC transaction
-	 * Usecase8: Inserting employee data in employee as well as payroll table
-	 * Usecase9: Adding the employee to the given department Usecase11: Making all
+	 * UC7: Inserting new employee into the table using JDBC transaction........
+	 * UC8: Inserting employee data in employee as well as payroll table........
+	 * UC9: Adding the employee to the given department Usecase11: Making all
 	 * insertion as a single transaction
 	 */
 	public Employee addEmployeeToPayrollAndDepartment(String name, String gender, double salary, LocalDate start,
@@ -275,7 +275,7 @@ public class EmployeePayrollDB {
 	}
 
 	/**
-	 * Usecase8: Performing the cascading delete on the employee table
+	 * UC8: Performing the cascading delete on the employee table
 	 * 
 	 * @param name
 	 * @throws DatabaseException
@@ -292,7 +292,7 @@ public class EmployeePayrollDB {
 	}
 
 	/**
-	 * Usecase12: Remove employee from the table
+	 * UC12: Remove employee from the table
 	 * 
 	 * @param id
 	 * @return
@@ -308,6 +308,15 @@ public class EmployeePayrollDB {
 		return listOfEmployees;
 	}
 
+	/**
+	 * Updates employee payroll data
+	 * 
+	 * @param name
+	 * @param newSalary
+	 * @return
+	 * @throws DatabaseException
+	 * @throws SQLException
+	 */
 	public int updateEmployeePayrollData(String name, Double newSalary) throws DatabaseException, SQLException {
 		int employeeId = -1;
 		int result = 0;
