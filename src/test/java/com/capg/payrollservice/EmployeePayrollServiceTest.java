@@ -248,4 +248,19 @@ public class EmployeePayrollServiceTest {
 		long entries = eService.countEntries(IOService.REST_IO);
 		assertEquals(8, entries);
 	}
+
+	@Test
+	public void givenEmployeeToDelete_WhenDeleted_ShouldMatchResponseAndCount() throws DatabaseException, SQLException {
+		Employee[] arrayOfEmp = getEmployeeList();
+		EmployeePayrollService eService = new EmployeePayrollService(Arrays.asList(arrayOfEmp));
+		Employee employee = eService.getEmployee("Mukesh Ambani");
+		RequestSpecification request = RestAssured.given();
+		request.header("Content-Type", "application/json");
+		Response response = request.delete("/employees/" + employee.id);
+		int statusCode = response.getStatusCode();
+		assertEquals(200, statusCode);
+		eService.deleteEmployee(employee.name, IOService.REST_IO);
+		long count = eService.countEntries(IOService.REST_IO);
+		assertEquals(7, count);
+	}
 }

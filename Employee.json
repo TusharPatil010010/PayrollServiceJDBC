@@ -13,18 +13,6 @@
       "is_active": true
     },
     {
-      "name": "Mukesh Ambani",
-      "id": 4,
-      "salary": 4000000,
-      "gender": "M",
-      "start": {
-        "year": 2000,
-        "month": 11,
-        "day": 5
-      },
-      "is_active": true
-    },
-    {
       "name": "Mark Zuckerberg",
       "id": 5,
       "salary": 3000000,
