@@ -2,6 +2,7 @@ package com.capg.payrollservice;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 public class Employee {
 	public String name;
@@ -33,6 +34,12 @@ public class Employee {
 		this.department = department;
 	}
 
+	@Override
+	public int hashCode() {
+		return Objects.hash(name, gender, salary, start);
+	}
+
+	@Override
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;

@@ -167,7 +167,6 @@ public class EmployeePayrollService {
 
 	public void addEmployeesToPayroll(List<Employee> employeeDataList) {
 		employeeDataList.forEach(employee -> {
-//			System.out.println("Employee Being added: "+employee.name);
 			try {
 				this.addEmployeeToPayrollAndDepartment(employee.name, employee.gender, employee.salary, employee.start,
 						employee.department);
@@ -175,9 +174,38 @@ public class EmployeePayrollService {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-//			System.out.println("Employee added: "+employee.name);
 		});
-//		System.out.println(this.employeeList);
+	}
 
+	/**
+	 * UC14: Adding employees to table using threads in less time
+	 * 
+	 * @param employeeDataList
+	 */
+	public void addEmployeesToPayrollWithThreads(List<Employee> employeeDataList) {
+		Map<Integer, Boolean> employeeAdditionStatus = new HashMap<Integer, Boolean>();
+		employeeDataList.forEach(employee -> {
+			Runnable task = () -> {
+				employeeAdditionStatus.put(employee.hashCode(), false);
+				System.out.println("Employee Being Added: " + Thread.currentThread().getName());
+				try {
+					this.addEmployeeToPayrollAndDepartment(employee.name, employee.gender, employee.salary,
+							employee.start, employee.department);
+				} catch (SQLException | DatabaseException e) {
+					e.printStackTrace();
+				}
+				employeeAdditionStatus.put(employee.hashCode(), true);
+				System.out.println("Employee Added: " + Thread.currentThread().getName());
+			};
+			Thread thread = new Thread(task, employee.name);
+			thread.start();
+		});
+		while (employeeAdditionStatus.containsValue(false)) {
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }

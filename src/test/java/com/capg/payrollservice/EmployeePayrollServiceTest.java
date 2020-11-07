@@ -134,14 +134,18 @@ public class EmployeePayrollServiceTest {
 				new Employee(0, "Bill Gates", 200000.0, "M", LocalDate.now(), Arrays.asList("Marketing")),
 				new Employee(0, "Mark ", 150000.0, "M", LocalDate.now(), Arrays.asList("Technical")),
 				new Employee(0, "Sundar", 400000.0, "M", LocalDate.now(), Arrays.asList("Sales,Technical")),
-				new Employee(0, "Mukesh ", 4500000.0, "M", LocalDate.now(), Arrays.asList("Sales")), };
+				new Employee(0, "Mukesh ", 4500000.0, "M", LocalDate.now(), Arrays.asList("Sales")) };
 		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
 		employeePayrollService.readEmployeePayrollDBData(IOService.DB_IO);
 		Instant start = Instant.now();
 		employeePayrollService.addEmployeesToPayroll(Arrays.asList(arrayOfEmp));
 		Instant end = Instant.now();
 		System.out.println("Duration without Thread: " + Duration.between(start, end));
+		Instant threadStart = Instant.now();
+		employeePayrollService.addEmployeesToPayrollWithThreads(Arrays.asList(arrayOfEmp));
+		Instant threadEnd = Instant.now();
+		System.out.println("Duration with Thread: " + Duration.between(threadStart, threadEnd));
 		long result = employeePayrollService.countEntries(IOService.DB_IO);
-		assertEquals(6, result);
+		assertEquals(13, result);
 	}
 }
